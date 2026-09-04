@@ -54,8 +54,14 @@ export class UsersService {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async remove(id: string) {
+    let user = this.findOne(id);
+
+    await this.userRepository.delete(id);
+    
+    return {
+      message: `User with ID ${id} deleted`
+    }
   }
 
   private handleDBExceptions(error) {
