@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { validate as isUUID } from 'uuid';
+import { PaginationDto } from '../common/dto/pagination-dto';
 
 @Injectable()
 export class UsersService {
@@ -28,8 +29,12 @@ export class UsersService {
     }
   }
 
-  async findAll() {
-    const users = await this.userRepository.find();
+  async findAll(paginationDto: PaginationDto) {
+    const {limit, offset} = paginationDto;
+    const users = await this.userRepository.find({
+      take: limit,
+      skip: offset
+    });
     return users;
   }
 
