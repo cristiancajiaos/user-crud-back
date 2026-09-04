@@ -4,6 +4,7 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CommonModule } from './common/common.module';
+import { SeedModule } from './seed/seed.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { CommonModule } from './common/common.module';
       synchronize: true
     }),
     UsersModule,
-    CommonModule
+    CommonModule,
+    SeedModule
   ],
   controllers: [],
   providers: [AppService],
