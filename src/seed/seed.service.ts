@@ -27,7 +27,10 @@ export class SeedService {
     } catch(error) {
       throw new InternalServerErrorException(error);
     }
-    return `SEED EXECUTED`;
+    return {
+      status: 200,
+      message: 'SEED EXECUTED'
+    }
   }
 
 }
