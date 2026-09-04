@@ -1,4 +1,9 @@
-import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,10 +13,9 @@ import { validate as isUUID } from 'uuid';
 
 @Injectable()
 export class UsersService {
-
   constructor(
     @InjectRepository(User)
-    private readonly userRepository: Repository<User>
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async create(createUserDto: CreateUserDto) {
@@ -33,13 +37,15 @@ export class UsersService {
     let user: User | null = null;
 
     if (isUUID(term)) {
-      user = await this.userRepository.findOneBy({id: term});
+      user = await this.userRepository.findOneBy({ id: term });
     } else {
       if (!user) {
-        user = await this.userRepository.findOneBy({name: term});
+        user = await this.userRepository.findOneBy({ name: term });
       }
       if (!user) {
-         user = await this.userRepository.findOneBy({email: term.toLowerCase().trim()});
+        user = await this.userRepository.findOneBy({
+          email: term.toLowerCase().trim(),
+        });
       }
     }
 
@@ -50,18 +56,32 @@ export class UsersService {
     return user;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      const user = await this.userRepository.preload({
+        id: id,
+        ...updateUserDto,
+      });
+
+      if (!user) {
+        throw new NotFoundException(`Product with ID ${id} not found`);
+      }
+
+      await this.userRepository.save(user);
+      return user;
+    } catch (error) {
+      this.handleDBExceptions(error);
+    }
   }
 
   async remove(id: string) {
     let user = this.findOne(id);
 
     await this.userRepository.delete(id);
-    
+
     return {
-      message: `User with ID ${id} deleted`
-    }
+      message: `User with ID ${id} deleted`,
+    };
   }
 
   private handleDBExceptions(error) {
@@ -70,5 +90,5 @@ export class UsersService {
     }
 
     throw new InternalServerErrorException(error);
-  } 
+  }
 }
