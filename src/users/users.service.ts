@@ -30,7 +30,7 @@ export class UsersService {
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const {limit, offset} = paginationDto;
+    const {limit = 10, offset = 0} = paginationDto;
     const users = await this.userRepository.find({
       take: limit,
       skip: offset
