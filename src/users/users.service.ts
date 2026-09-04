@@ -96,4 +96,8 @@ export class UsersService {
 
     throw new InternalServerErrorException(error);
   }
+
+  foo() {
+    return 'foo';
+  }
 }
