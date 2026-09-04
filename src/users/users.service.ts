@@ -1,9 +1,10 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { validate as isUUID } from 'uuid';
 
 @Injectable()
 export class UsersService {
@@ -28,8 +29,25 @@ export class UsersService {
     return users;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} user`;
+  async findOne(term: string) {
+    let user: User | null = null;
+
+    if (isUUID(term)) {
+      user = await this.userRepository.findOneBy({id: term});
+    } else {
+      if (!user) {
+        user = await this.userRepository.findOneBy({name: term});
+      }
+      if (!user) {
+         user = await this.userRepository.findOneBy({email: term.toLowerCase().trim()});
+      }
+    }
+
+    if (!user) {
+      throw new NotFoundException(`User with term ${term} not found`);
+    }
+
+    return user;
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
