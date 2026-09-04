@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsOptional, IsPositive } from "class-validator";
+import { IsOptional, IsPositive, ValidateIf } from "class-validator";
 
 export class PaginationDto {
   @IsOptional()
@@ -9,6 +9,7 @@ export class PaginationDto {
 
   @IsOptional()
   @IsPositive()
+  @ValidateIf(value => value >= 0)
   @Type(() => Number)
   offset: number;
 }
